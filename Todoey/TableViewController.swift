@@ -12,8 +12,14 @@ class TableViewController: UITableViewController {
 
     var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
     
+    var defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Get the persistent data to be shown
+        if let items = defaults.array(forKey: "TodoeyListArray") as? [String] {
+            itemArray = items
+        }
     }
     
     // MARK:- TableView Datasource Methods
@@ -50,6 +56,8 @@ class TableViewController: UITableViewController {
         let alert = UIAlertController(title: "Add new Todoey", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             self.itemArray.append(textField.text!)
+            // Store the new item persistently
+            self.defaults.set(self.itemArray, forKey: "TodoeyListArray")
             self.tableView.reloadData()
         }
         
