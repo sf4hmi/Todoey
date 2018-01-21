@@ -12,6 +12,7 @@
 		9907AEB72011440F00A368CB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9907AEB52011440F00A368CB /* Main.storyboard */; };
 		9907AEB92011440F00A368CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9907AEB82011440F00A368CB /* Assets.xcassets */; };
 		9907AEBC2011440F00A368CB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9907AEBA2011440F00A368CB /* LaunchScreen.storyboard */; };
+		99E8470620148BA500D88332 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E8470520148BA500D88332 /* Item.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		9907AEB82011440F00A368CB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9907AEBB2011440F00A368CB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9907AEBD2011440F00A368CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		99E8470520148BA500D88332 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,13 +57,31 @@
 			isa = PBXGroup;
 			children = (
 				9907AEB12011440F00A368CB /* AppDelegate.swift */,
-				9907AEB32011440F00A368CB /* TableViewController.swift */,
+				992E556A20148C3400FC32BB /* View Controllers */,
 				9907AEB52011440F00A368CB /* Main.storyboard */,
 				9907AEB82011440F00A368CB /* Assets.xcassets */,
 				9907AEBA2011440F00A368CB /* LaunchScreen.storyboard */,
 				9907AEBD2011440F00A368CB /* Info.plist */,
+				99E8470720148BC800D88332 /* Data Model */,
 			);
 			path = Todoey;
+			sourceTree = "<group>";
+		};
+		992E556A20148C3400FC32BB /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				9907AEB32011440F00A368CB /* TableViewController.swift */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		99E8470720148BC800D88332 /* Data Model */ = {
+			isa = PBXGroup;
+			children = (
+				99E8470520148BA500D88332 /* Item.swift */,
+			);
+			name = "Data Model";
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,6 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9907AEB42011440F00A368CB /* TableViewController.swift in Sources */,
+				99E8470620148BA500D88332 /* Item.swift in Sources */,
 				9907AEB22011440F00A368CB /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
