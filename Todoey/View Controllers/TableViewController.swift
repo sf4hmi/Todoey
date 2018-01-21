@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class TableViewController: UITableViewController {
+class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
     
@@ -89,12 +89,34 @@ class TableViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems() {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) { // Item.fetchRequest is the default value of request, if none is passed e.g when called loadItems()
         do {
             itemArray = try context.fetch(request)
         } catch {
             print("Loading data failed: \(error)")
+        }
+        
+        tableView.reloadData()
+    }
+}
+
+// MARK:- Search bar controls
+
+extension TodoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        loadItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
         }
     }
 }
