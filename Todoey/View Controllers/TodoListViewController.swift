@@ -12,6 +12,11 @@ import CoreData
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
+    var selectedCategory: Category? {
+        didSet { // What should happen if the variable is set
+            loadItems()
+        }
+    }
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -19,7 +24,7 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadItems()
+        self.title = selectedCategory?.name
     }
     
     // MARK:- TableView Datasource Methods
@@ -51,7 +56,7 @@ class TodoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    // MARK:- Add new item
+    // MARK:- Add New Items
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
@@ -61,6 +66,8 @@ class TodoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
             newItem.done = false
+            // Don't forget to define the relationship
+            newItem.parentCategory = self.selectedCategory
             self.itemArray.append(newItem)
             
             self.saveItem()
@@ -68,14 +75,17 @@ class TodoListViewController: UITableViewController {
         
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new item"
-            textField = alertTextField
+            // TODO:- A valid string must be entered
+            if let text = alertTextField.text, !text.isEmpty {
+                textField = alertTextField
+            }
         }
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
     
-    // MARK:- Model Manipulation Methods
+    // MARK:- Data Manipulation Methods
     
     // Store the new item persistently
     func saveItem() {
@@ -83,13 +93,21 @@ class TodoListViewController: UITableViewController {
             // Must be called after CRUD
             try context.save()
         } catch {
-            print("Saving failed: \(error)")
+            print("Saving data failed: \(error)")
         }
         // To make the new item visible
         tableView.reloadData()
     }
     
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) { // Item.fetchRequest is the default value of request, if none is passed e.g when called loadItems()
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) { // Item.fetchRequest is the default value of request, if none is passed e.g when called loadItems()
+        let parentPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [parentPredicate, additionalPredicate])
+        } else {
+            request.predicate = parentPredicate
+        }
+        
         do {
             itemArray = try context.fetch(request)
         } catch {
@@ -100,15 +118,16 @@ class TodoListViewController: UITableViewController {
     }
 }
 
-// MARK:- Search bar controls
+// MARK:- Search Bar Controls
 
 extension TodoListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let request: NSFetchRequest<Item> = Item.fetchRequest()
+        let searchedItem = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        loadItems(with: request)
+        
+        loadItems(with: request, predicate: searchedItem)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
