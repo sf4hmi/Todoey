@@ -7,17 +7,15 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
 
-    var categoryArray = [Category]()
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    let realm = try! Realm()
+    var categories: Results<Category>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
         loadCategory()
     }
@@ -26,13 +24,13 @@ class CategoryTableViewController: UITableViewController {
     // Methods which deals with how the TableView should appear (how many rows, what should it show, etc.)
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categoryArray.count
+        return categories?.count ?? 1 // Nil coalesing operator
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categoryArray[indexPath.row].name
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No category added yet"
         
         return cell
     }
@@ -48,27 +46,27 @@ class CategoryTableViewController: UITableViewController {
         let destinationVC = segue.destination as! TodoListViewController
         
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = categoryArray[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row] // Why don't we use "??" here? Because in TodoListVC, the selectedCategory is defined as an Optional so we should also be safe there
         }
     }
     
     // MARK:- Data Manipulation Methods
     
-    func saveCategory() {
+    func saveCategory(category: Category) {
         do {
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print("Saving new category failed!: \(error)")
         }
         tableView.reloadData()
     }
     
-    func loadCategory(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
-        do {
-            categoryArray = try context.fetch(request)
-        } catch {
-            print("Loading categories failed!: \(error)")
-        }
+    func loadCategory() {
+        categories = realm.objects(Category.self)
+        
+        tableView.reloadData()
     }
     
     // MARK:- Add New Categories
@@ -77,11 +75,9 @@ class CategoryTableViewController: UITableViewController {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add new category", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
-            let newCategory = Category(context: self.context)
-            newCategory.name = textField.text
-            
-            self.categoryArray.append(newCategory)
-            self.saveCategory()
+            let newCategory = Category()
+            newCategory.name = textField.text!
+            self.saveCategory(category: newCategory)
         }
         
         alert.addTextField { (alertTextField) in
