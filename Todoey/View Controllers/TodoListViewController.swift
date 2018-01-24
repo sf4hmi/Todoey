@@ -77,13 +77,13 @@ class TodoListViewController: UITableViewController {
                         let newItem = Item()
                         newItem.title = textField.text!
                         newItem.done = false
+                        newItem.dateCreated = Date()
                         currentCategory.items.append(newItem)
                     }
                 } catch {
                     print("Error saving! => \(error)")
                 }
             }
-            
             self.tableView.reloadData()
         }
         
@@ -99,12 +99,7 @@ class TodoListViewController: UITableViewController {
     
     // MARK:- Data Manipulation Methods
     
-    // Store the new item persistently
-    func saveItem() {
-
-    }
-    
-    func loadItems() { // Item.fetchRequest is the default value of request, if none is passed e.g when called loadItems()
+    func loadItems() {
         items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
     }
@@ -114,9 +109,17 @@ class TodoListViewController: UITableViewController {
 
 extension TodoListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        items = items?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        tableView.reloadData()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
     }
 }
 
