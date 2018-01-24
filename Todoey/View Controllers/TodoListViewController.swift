@@ -50,6 +50,17 @@ class TodoListViewController: UITableViewController {
     // MARK:- TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let item = items?[indexPath.row] {
+            do {
+                try realm.write {
+                    // realm.delete(item)
+                    item.done = !item.done
+                }
+            } catch {
+                print("Saving data failed! => \(error)")
+            }
+        }
+        tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
